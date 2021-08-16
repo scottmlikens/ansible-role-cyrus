@@ -1,0 +1,26 @@
+- name: Ensure cyrus-imapd is installed.
+  package: "name=cyrus-imapd state=present"
+- name: Update /etc/cyrus.conf
+  template:
+    src: etc/cyrus/cyrus.conf.j2
+    dest: /etc/cyrus.conf
+    owner: root
+    group: root
+    mode: 0644
+    notify: restart cyrus
+    when: ansible_os_family == 'Debian'
+- name: Update /etc/imapd.conf
+  template:
+    src: etc/cyrus/imapd.conf.j2
+    dest: /etc/imapd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart cyrus
+  when: ansible_os_family == 'Debian' 
+- name: Ensure cyrus-admin is installed.
+  package: "name=cyrus-admin state=present"
+- name: ensure sasl2-bin is installed.
+  package: "name=sasl2-bin state=present"
+- name: ensure libsasl2-dev is installed.
+  package: "name=libsasl2-dev state=present"

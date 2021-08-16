@@ -1,0 +1,36 @@
+- name: fixup local_delivery
+  template:
+    src: etc/exim/900_exim4_cyrus_imapd.j2
+    dest: /etc/exim4/conf.d/router/900_exim4-config_cyrus_imapd
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart exim
+  when: ansible_os_family == 'Debian'
+- name: more fixes for cyrus
+  template:
+    src: etc/exim/30_exim4-config_cyrus_imapd.j2
+    dest: /etc/exim4/conf.d/transport/30_exim4-config_cyrus_imapd
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart exim
+  when: ansible_os_family == 'Debian'
+- name: enable exim auth
+  template:
+    src: etc/exim/30_exim4_auth.j2
+    dest: /etc/exim4/conf.d/auth/30_exim_auth
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart exim
+  when: ansible_os_family == 'Debian'
+- name: enable exim spam acls
+  template:
+    src: etc/exim/40_exim4_acls.j2
+    dest: /etc/exim4/conf.d/acl/40_exim4_acls
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart exim
+  when: ansible_os_family == 'Debian'

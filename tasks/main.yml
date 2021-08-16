@@ -1,2 +1,7 @@
 ---
-# tasks file for cyrus
+- name: include geerlingguy.exim
+  include_role:
+    name: scottmlikens.exim
+- include: cyrus.yml
+- include: exim.yml
+- include: spamassassin.yml

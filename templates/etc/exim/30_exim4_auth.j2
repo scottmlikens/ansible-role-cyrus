@@ -1,0 +1,57 @@
+
+### auth/30_exim4-config_examples
+#################################
+
+# The examples below are for server side authentication, when the
+# local exim is SMTP server and clients authenticate to the local exim.
+
+# They allow two styles of plain-text authentication against an
+# CONFDIR/passwd file whose syntax is described in exim4_passwd(5).
+
+# Hosts that are allowed to use AUTH are defined by the
+# auth_advertise_hosts option in the main configuration. The default is
+# "*", which allows authentication to all hosts over all kinds of
+# connections if there is at least one authenticator defined here.
+# Authenticators which rely on unencrypted clear text passwords don't
+# advertise on unencrypted connections by default. Thus, it might be
+# wise to set up TLS to allow encrypted connections. If TLS cannot be
+# used for some reason, you can set AUTH_SERVER_ALLOW_NOTLS_PASSWORDS to
+# advertise unencrypted clear text password based authenticators on all
+# connections. As this is severely reducing security, using TLS is
+# preferred over allowing clear text password based authenticators on
+# unencrypted connections.
+
+# PLAIN authentication has no server prompts. The client sends its
+# credentials in one lump, containing an authorization ID (which we do not
+# use), an authentication ID, and a password. The latter two appear as
+# $auth2 and $auth3 in the configuration and should be checked against a
+# valid username and password. In a real configuration you would typically
+# use $auth2 as a lookup key, and compare $auth3 against the result of the
+# lookup, perhaps using the crypteq{}{} condition.
+
+plain_server:
+  driver = plaintext
+  public_name = PLAIN
+  server_condition = "${if crypteq{$auth3}{${extract{1}{:}{${lookup{$auth2}lsearch{CONFDIR/passwd}{$value}{*:*}}}}}{1}{0}}"
+  server_set_id = $auth2
+  server_prompts = :
+  server_advertise_condition = ${if eq{$tls_in_cipher}{}{}{*}}
+
+# LOGIN authentication has traditional prompts and responses. There is no
+# authorization ID in this mechanism, so unlike PLAIN the username and
+# password are $auth1 and $auth2. Apart from that you can use the same
+# server_condition setting for both authenticators.
+
+login_server:
+  driver = plaintext
+  public_name = LOGIN
+  server_prompts = "Username:: : Password::"
+  server_condition = "${if crypteq{$auth2}{${extract{1}{:}{${lookup{$auth1}lsearch{CONFDIR/passwd}{$value}{*:*}}}}}{1}{0}}"
+  server_set_id = $auth1
+  server_advertise_condition = ${if eq{$tls_in_cipher}{}{}{*}}
+#
+cram_md5_server:
+  driver = cram_md5
+  public_name = CRAM-MD5
+  server_secret = ${extract{2}{:}{${lookup{$auth1}lsearch{CONFDIR/passwd}{$value}fail}}}
+  server_set_id = $auth1

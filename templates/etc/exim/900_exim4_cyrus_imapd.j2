@@ -1,0 +1,16 @@
+
+### transport/30_exim4-config_maildir_home
+#################################
+
+# Use this instead of mail_spool if you want to to deliver to Maildir in
+# home-directory - change the definition of LOCAL_DELIVERY
+#
+cyrus_imapd:
+  driver = accept
+  debug_print = "R: local_user for $local_part@$domain"
+#  domains = +local_domains
+  check_local_user
+  local_part_suffix = +* : -*
+  local_part_suffix_optional
+  transport = cyrus_imapd
+  cannot_route_message = Unknown user

@@ -1,0 +1,32 @@
+- name: install Spamassassin
+  package: "name=spamassassin state=present"
+- name: install sa-exim
+  package: "name=sa-exim state=present"
+- name: Enable SA
+  lineinfile:
+    dest: "/etc/default/spamassassin"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    mode: 0644
+  with_items:
+    - regexp: '^ENABLED'
+      line: "ENABLED=1"
+    - regexp: '^CRON'
+      line: "CRON=1"
+  notify: restart spamassassin
+  when: ansible_os_family == 'Debian'
+- name: Enable sa-exim
+  lineinfile:
+    dest: "/etc/exim4/sa-exim.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    mode: 0644
+  with_items:
+    - regexp: '^SAEximRunCond: 0'
+      line: "# SAEximRunCond: 0"
+    - regexp: '^SAEximDebug'
+      line: "SAEximDebug: 0"
+  notify: restart exim
+  when: ansible_os_family == 'Debian'  

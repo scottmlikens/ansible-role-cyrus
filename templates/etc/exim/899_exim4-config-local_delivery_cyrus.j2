@@ -1,0 +1,10 @@
+final_delivery:
+  driver = lmtp
+  command = "/usr/lib/cyrus/deliver -l"
+  batch_max = 20
+  user = cyrus
+
+local_delivery_cyrus:
+  driver = lmtp
+  command = "/usr/sbin/cyrdeliver -l -m user.$local_part"
+  user = cyrus

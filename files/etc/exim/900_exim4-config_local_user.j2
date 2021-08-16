@@ -1,0 +1,15 @@
+### router/900_exim4-config_local_user
+##################################
+#
+## This router matches local user mailboxes. If the router fails, the error
+## message is "Unknown user".
+
+localuser:
+  driver = accept
+  debug_print = "R: local_user for $local_part@$domain"
+#  domains = +local_domains
+  check_local_user
+  local_part_suffix = +* : -*
+  local_part_suffix_optional
+  transport = local_delivery_cyrus
+  cannot_route_message = Unknown user
